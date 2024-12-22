@@ -1,28 +1,29 @@
-import { prisma } from "@/lib/prisma"; // Đảm bảo đã cấu hình Prisma
-import { DataTable } from "./data-table";
+"use client";
 
-export async function getServerSideProps() {
-  // Lấy dữ liệu từ Prisma
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      displayName: true,
-      email: true,
-      isAdmin: true,
-    },
-  });
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { DataTable } from "@/components/data-table";
 
-  return {
-    props: {
-      users,
-    },
-  };
-}
+export default function UserManagement() {
+  const [users, setUsers] = useState([]);
 
-export default function Page({ users }: { users: any[] }) {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const response = await fetch("/api/users");
+      const data = await response.json();
+      setUsers(data);
+    };
+    fetchUsers();
+  }, []);
+
   return (
     <div>
-      <h1 className="text-xl font-bold mb-4">User Table</h1>
+      <h1 className="text-xl font-bold mb-4">Quản lý Người dùng</h1>
+      <div className="mb-4">
+        <Link href="/admin/users/add" className="bg-blue-500 text-white p-2 rounded">
+          Thêm Người dùng
+        </Link>
+      </div>
       <DataTable data={users} />
     </div>
   );
